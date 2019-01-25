@@ -21,6 +21,7 @@ pipeline {
 
         stage("checkout scm") {
             steps {
+                deleteDir()
                 git branch: params.BRANCH, credentialsId: 'github-key', url: "git@github.com:${repoOwner}/${params.REPO}.git"
             }
         }
@@ -33,6 +34,27 @@ pipeline {
                 }
             }
         }
+
+        stage('upload artefact') {
+            parallel {
+                stage('upload to nexus') {
+                    steps {
+                        script {
+                            shared.mvn("deploy")
+                        }
+                    }
+                }
+                stage('push tag to github') {
+                    steps {
+                        script {
+                            shared.pushIncrementedVersion(params.BRANCH)
+                        }
+                    }
+                }
+            }
+        }
+
+
 
     }
     
