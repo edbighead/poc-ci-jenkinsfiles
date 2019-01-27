@@ -2,13 +2,17 @@
 import com.library.Shared
 
 def shared = new Shared(this)
-def versions = ["2.2.0","2.1.4","1.0.0"]
+def versions = ["2.2.2","2.1.4","1.0.0"]
+def envs = ["ft1","ft2"]
+def repoName = "poc-ci-jenkinsfiles"
+def repoOwner = "edbighead"
  
 pipeline {
     agent any
 
     parameters { 
         choice(name: 'APP_VERSION', choices: versions, description: 'app version')
+        choice(name: 'ENV', choices: envs, description: 'app version')
     }
 
     
@@ -18,21 +22,13 @@ pipeline {
             steps {
                 deleteDir()
                 sh "mkdir -p deploy"
+                git branch: "master", credentialsId: 'github-key', url: "git@github.com:${repoOwner}/${repoName}.git"
             }
         }
 
-        // stage('set version') {
-        //     steps {
-        //         echo "setting artefact version"
-        //         script {
-        //             shared.setVersion(params.MAJOR, params.MINOR, params.INCREMENTAL)
-        //         }
-        //     }
-        // }
-
         stage('download') {
             parallel {
-                stage('download from nexus') {
+                stage('download service-1') {
                     steps {
                         script {
                             shared.downloadHelloService(params.APP_VERSION)
@@ -42,8 +38,17 @@ pipeline {
             }
         }
 
-
-
+        stage('deploy') {
+            parallel {
+                stage('deploy service-1') {
+                    steps {
+                        script {
+                            shared.deployHelloService(params.ENV)
+                        }
+                    }
+                }
+            }
+        }
     }
     
     options {
