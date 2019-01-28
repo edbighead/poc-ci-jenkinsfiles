@@ -11,7 +11,6 @@
 
     <profile>
       <id>weblogic</id>
-      
       <pluginRepositories>
         <pluginRepository>
           <id>maven.oracle.com</id>
@@ -26,48 +25,54 @@
           </releases>
         </pluginRepository>
       </pluginRepositories>
-
       <build>
         <plugins>
-
           <plugin>
             <groupId>com.oracle.weblogic</groupId>
             <artifactId>weblogic-maven-plugin</artifactId>
             <version>12.1.3-0-0</version>
-            
             <configuration>
               <adminurl>${weblogic.adminurl}</adminurl>
               <user>${weblogic.user}</user>
               <password>${weblogic.password}</password>
-              <upload>true</upload>
               <source>${weblogic.source}</source>
+              <upload>true</upload>
+              <action>deploy</action>
+              <verbose>true</verbose>
+              <name>${weblogic.appname}</name>
             </configuration>
-            
             <executions>
               <execution>
                 <id>undeploy-app</id>
+                <phase>install</phase>
                 <goals>
                   <goal>stop-app</goal>
                   <goal>undeploy</goal>
                 </goals>
-                <phase>pre-integration-tests</phase>
                 <configuration>
                   <failOnError>false</failOnError>
                 </configuration>
               </execution>
               <execution>
                 <id>deploy-app</id>
+                <phase>install</phase>
                 <goals>
                   <goal>deploy</goal>
                 </goals>
-                <phase>install</phase>
               </execution>
             </executions>
           </plugin>
-          
         </plugins>
       </build>
-
     </profile>
+
+    <profile>
+      <id>service-1</id>
+      <properties>
+        <weblogic.appname>hello</weblogic.appname>
+        <weblogic.source>deploy/hello.war</weblogic.source>
+      </properties>
+    </profile>
+
   </profiles>
 </project>

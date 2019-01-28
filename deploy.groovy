@@ -25,6 +25,7 @@ pipeline {
                 git branch: "master", credentialsId: 'github-key', url: "git@github.com:${repoOwner}/${repoName}.git"
             }
         }
+        
 
         stage('download') {
             parallel {
